@@ -1,3 +1,4 @@
+import { media } from './notation'
 import type { Track } from './types'
 
 export const electricLead: Track = {
@@ -29,14 +30,14 @@ export const electricLead: Track = {
         text: '10 clean changes a minute between G, C, D and Em.',
       },
       items: [
-        { slug: 'spider', kind: 'drill', title: 'Spider drill', detail: 'Frets 1-2-3-4 across all strings at 60 bpm.', query: 'guitar spider exercise' },
-        { slug: 'open-chords', kind: 'drill', title: 'Open chords', detail: 'Em, Am, E, A, D, G, C.', query: 'open chords for beginners' },
-        { slug: 'one-minute-changes', kind: 'drill', title: 'One-minute chord changes', detail: 'Count clean switches in 60 seconds.', query: 'one minute chord changes' },
-        { slug: 'steady-downstrokes', kind: 'drill', title: 'Steady downstrokes', detail: 'Downstrokes with a metronome.', query: 'downstroke strumming with metronome' },
+        { slug: 'spider', media: media['spider'], kind: 'drill', title: 'Spider drill', detail: 'Frets 1-2-3-4 across all strings at 60 bpm.', query: 'guitar spider exercise' },
+        { slug: 'open-chords', media: media['open-chords'], kind: 'drill', title: 'Open chords', detail: 'Em, Am, E, A, D, G, C.', query: 'open chords for beginners' },
+        { slug: 'one-minute-changes', media: media['one-minute-changes'], kind: 'drill', title: 'One-minute chord changes', detail: 'Count clean switches in 60 seconds.', query: 'one minute chord changes' },
+        { slug: 'steady-downstrokes', media: media['steady-downstrokes'], kind: 'drill', title: 'Steady downstrokes', detail: 'Downstrokes with a metronome.', query: 'downstroke strumming with metronome' },
         { slug: 'seven-nation-army', kind: 'song', title: 'Seven Nation Army', detail: 'The riff.', query: 'The White Stripes' },
         { slug: 'smoke-on-the-water', kind: 'song', title: 'Smoke on the Water', detail: 'The main riff.', query: 'Deep Purple' },
         { slug: 'horse-with-no-name', kind: 'song', title: 'Horse with No Name', detail: 'Two-chord strumming.', query: 'America' },
-        { slug: 'knockin-on-heavens-door', kind: 'song', title: "Knockin' on Heaven's Door", detail: 'G, D, Am, C changes.', query: 'Bob Dylan' },
+        { slug: 'knockin-on-heavens-door', media: media['knockin-on-heavens-door'], kind: 'song', title: "Knockin' on Heaven's Door", detail: 'G, D, Am, C changes.', query: 'Bob Dylan' },
       ],
     },
     {
@@ -46,13 +47,13 @@ export const electricLead: Track = {
       summary: 'Lock in your strumming hand and meet the barre chord.',
       milestone: { slug: 'milestone-rhythm', text: 'Play 3 full songs along with the recording.' },
       items: [
-        { slug: 'down-up-strumming', kind: 'drill', title: 'Down-up strumming', detail: '80 to 100 bpm.', query: 'down up strumming patterns' },
-        { slug: 'power-chords', kind: 'drill', title: 'Power chords and palm muting', detail: 'Power chords on the low strings, then palm muting.', query: 'power chords palm muting' },
-        { slug: 'easy-barre-chords', kind: 'drill', title: 'Easy barre chords', detail: 'Start with F and Bm.', query: 'barre chords F Bm beginners' },
+        { slug: 'down-up-strumming', media: media['down-up-strumming'], kind: 'drill', title: 'Down-up strumming', detail: '80 to 100 bpm.', query: 'down up strumming patterns' },
+        { slug: 'power-chords', media: media['power-chords'], kind: 'drill', title: 'Power chords and palm muting', detail: 'Power chords on the low strings, then palm muting.', query: 'power chords palm muting' },
+        { slug: 'easy-barre-chords', media: media['easy-barre-chords'], kind: 'drill', title: 'Easy barre chords', detail: 'Start with F and Bm.', query: 'barre chords F Bm beginners' },
         { slug: 'basket-case', kind: 'song', title: 'Basket Case', detail: 'Power chords at speed.', query: 'Green Day' },
         { slug: 'smells-like-teen-spirit', kind: 'song', title: 'Smells Like Teen Spirit', detail: 'Power chords and the riff.', query: 'Nirvana' },
-        { slug: 'sweet-home-alabama', kind: 'song', title: 'Sweet Home Alabama', detail: 'D, C, G rhythm.', query: 'Lynyrd Skynyrd' },
-        { slug: 'brown-eyed-girl', kind: 'song', title: 'Brown Eyed Girl', detail: 'Open chords with a bounce.', query: 'Van Morrison' },
+        { slug: 'sweet-home-alabama', media: media['sweet-home-alabama'], kind: 'song', title: 'Sweet Home Alabama', detail: 'D, C, G rhythm.', query: 'Lynyrd Skynyrd' },
+        { slug: 'brown-eyed-girl', media: media['brown-eyed-girl'], kind: 'song', title: 'Brown Eyed Girl', detail: 'Open chords with a bounce.', query: 'Van Morrison' },
       ],
     },
     {
@@ -62,10 +63,10 @@ export const electricLead: Track = {
       summary: 'Your first solo vocabulary: pentatonic, bends and blues.',
       milestone: { slug: 'milestone-lead-basics', text: 'Improvise 12 bars over a blues backing track.' },
       items: [
-        { slug: 'minor-pentatonic', kind: 'drill', title: 'Minor pentatonic', detail: 'Box 1, then box 2.', query: 'minor pentatonic box 1 box 2' },
-        { slug: 'hammer-pull-slide', kind: 'drill', title: 'Hammer-ons, pull-offs, slides', detail: 'Clean legato basics.', query: 'hammer ons pull offs slides' },
-        { slug: 'bends-vibrato', kind: 'drill', title: 'Bends and vibrato', detail: 'Half-step and whole-step bends, then vibrato.', query: 'string bending vibrato' },
-        { slug: 'twelve-bar-shuffle', kind: 'drill', title: '12-bar blues shuffle', detail: 'Rhythm part to play under yourself.', query: '12 bar blues shuffle rhythm' },
+        { slug: 'minor-pentatonic', media: media['minor-pentatonic'], kind: 'drill', title: 'Minor pentatonic', detail: 'Box 1, then box 2.', query: 'minor pentatonic box 1 box 2' },
+        { slug: 'hammer-pull-slide', media: media['hammer-pull-slide'], kind: 'drill', title: 'Hammer-ons, pull-offs, slides', detail: 'Clean legato basics.', query: 'hammer ons pull offs slides' },
+        { slug: 'bends-vibrato', media: media['bends-vibrato'], kind: 'drill', title: 'Bends and vibrato', detail: 'Half-step and whole-step bends, then vibrato.', query: 'string bending vibrato' },
+        { slug: 'twelve-bar-shuffle', media: media['twelve-bar-shuffle'], kind: 'drill', title: '12-bar blues shuffle', detail: 'Rhythm part to play under yourself.', query: '12 bar blues shuffle rhythm' },
         { slug: 'back-in-black', kind: 'song', title: 'Back in Black', detail: 'Riff and chords.', query: 'AC/DC' },
         { slug: 'crazy-train', kind: 'song', title: 'Crazy Train', detail: 'The riff.', query: 'Ozzy Osbourne' },
         { slug: 'wish-you-were-here', kind: 'song', title: 'Wish You Were Here', detail: 'The intro.', query: 'Pink Floyd' },
@@ -79,10 +80,10 @@ export const electricLead: Track = {
       summary: 'Map the whole neck and start learning on your own.',
       milestone: { slug: 'milestone-intermediate', text: 'Learn a new song from tab, at tempo, in under a week.' },
       items: [
-        { slug: 'major-scale-caged', kind: 'drill', title: 'Major scale and CAGED shapes', detail: 'Across the neck.', query: 'major scale CAGED system' },
-        { slug: 'triads-inversions', kind: 'drill', title: 'Triads and chord inversions', detail: 'On the top string sets.', query: 'triads inversions guitar' },
-        { slug: 'alternate-picking', kind: 'drill', title: 'Alternate picking', detail: '16th notes from 80 to 120 bpm.', query: 'alternate picking 16th notes' },
-        { slug: 'legato-runs', kind: 'drill', title: 'Legato runs', detail: 'Smooth hammer-on and pull-off runs.', query: 'legato runs' },
+        { slug: 'major-scale-caged', media: media['major-scale-caged'], kind: 'drill', title: 'Major scale and CAGED shapes', detail: 'Across the neck.', query: 'major scale CAGED system' },
+        { slug: 'triads-inversions', media: media['triads-inversions'], kind: 'drill', title: 'Triads and chord inversions', detail: 'On the top string sets.', query: 'triads inversions guitar' },
+        { slug: 'alternate-picking', media: media['alternate-picking'], kind: 'drill', title: 'Alternate picking', detail: '16th notes from 80 to 120 bpm.', query: 'alternate picking 16th notes' },
+        { slug: 'legato-runs', media: media['legato-runs'], kind: 'drill', title: 'Legato runs', detail: 'Smooth hammer-on and pull-off runs.', query: 'legato runs' },
         { slug: 'riff-by-ear', kind: 'drill', title: 'One riff a week by ear', detail: 'Work it out without tab, then check.', query: 'learn riffs by ear' },
         { slug: 'sweet-child-o-mine', kind: 'song', title: "Sweet Child O' Mine", detail: 'Intro riff and solo.', query: "Guns N' Roses" },
         { slug: 'little-wing', kind: 'song', title: 'Little Wing', detail: 'Chord embellishments.', query: 'Jimi Hendrix' },

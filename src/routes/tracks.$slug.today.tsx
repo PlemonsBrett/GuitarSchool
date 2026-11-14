@@ -1,5 +1,6 @@
 import { createFileRoute, Link, notFound, redirect, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
+import { ItemMedia } from '~/components/ItemMedia'
 import { lookups } from '~/content/links'
 import { getTrack } from '~/content'
 import { todaysPlan } from '~/lib/plan'
@@ -80,6 +81,7 @@ function Today() {
                     </a>
                   ))}
                 </p>
+                <ItemMedia media={b.item.media} />
               </>
             )}
             {b.note && <p className="mt-1 text-sm text-muted">{b.note}</p>}

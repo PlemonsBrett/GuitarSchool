@@ -1,3 +1,5 @@
+import type { ItemMedia } from './notation'
+
 export type PathId = 'acoustic' | 'electric'
 
 export type Item = {
@@ -9,6 +11,8 @@ export type Item = {
   detail: string
   /** Optional search hint appended to lookups, e.g. the artist. */
   query?: string
+  /** Chord diagrams and notation shown with the item. */
+  media?: ItemMedia
 }
 
 export type Phase = {

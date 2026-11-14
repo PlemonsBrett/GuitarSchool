@@ -1,5 +1,6 @@
 import { lookups } from '~/content/links'
 import type { Item } from '~/content/types'
+import { ItemMedia } from './ItemMedia'
 
 export function ItemRow({
   item,
@@ -45,6 +46,7 @@ export function ItemRow({
               </a>
             ))}
           </p>
+          <ItemMedia media={item.media} />
         </div>
       </div>
     </li>
