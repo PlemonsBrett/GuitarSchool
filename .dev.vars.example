@@ -1,3 +1,4 @@
 # Copy to .dev.vars for local dev (wrangler/vite read it). Never commit real values.
 SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxx
+# The VITE_SUPABASE_URL / VITE_SUPABASE_KEY names are accepted as well.

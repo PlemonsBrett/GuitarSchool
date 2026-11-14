@@ -1,12 +1,12 @@
 import { createMiddleware } from '@tanstack/react-start'
-import { getSupabase } from '~/lib/supabase.server'
+import { getSupabase, supabaseConfig } from '~/lib/supabase.server'
 
 /** Requires a signed-in user and hands the handler a per-request Supabase client via `context.supabase`. */
 export const userMiddleware = createMiddleware({ type: 'function' }).server(async ({ next }) => {
   const supabase = getSupabase()
   const { data } = await supabase.auth.getClaims()
   if (!data?.claims) throw new Error('Not signed in')
-  return next({ context: { supabase } })
+  return next({ context: { supabase, supabaseUrl: supabaseConfig().url } })
 })
 
 /**

@@ -1,11 +1,11 @@
 import { createServerFn } from '@tanstack/react-start'
 import type { CatalogEntry, Chord, Item, Notation, Phase, Track } from '~/content/types'
-import { getSupabase } from '~/lib/supabase.server'
+import { getSupabase, supabaseConfig } from '~/lib/supabase.server'
 
 type Db = ReturnType<typeof getSupabase>
 
-export function publicFileUrl(path: string) {
-  return `${process.env.SUPABASE_URL}/storage/v1/object/public/tabs/${path.split('/').map(encodeURIComponent).join('/')}`
+export function publicFileUrl(baseUrl: string, path: string) {
+  return `${baseUrl}/storage/v1/object/public/tabs/${path.split('/').map(encodeURIComponent).join('/')}`
 }
 
 export function rowToChord(r: { id: string; name: string; frets: number[]; fingers: number[]; barre: Chord['barre'] }): Chord {
@@ -13,7 +13,7 @@ export function rowToChord(r: { id: string; name: string; frets: number[]; finge
 }
 
 /** Loads one track with phases, items, chord diagrams and notation. RLS decides what the caller may see. */
-export async function loadTrack(supabase: Db, slug: string): Promise<Track | null> {
+export async function loadTrack(supabase: Db, slug: string, baseUrl: string): Promise<Track | null> {
   const { data: t, error } = await supabase.from('tracks').select('*').eq('slug', slug).maybeSingle()
   if (error) throw new Error(error.message)
   if (!t) return null
@@ -40,7 +40,7 @@ export async function loadTrack(supabase: Db, slug: string): Promise<Track | nul
       title: n.title,
       caption: n.caption,
       tex: n.format === 'alphatex' ? n.tex : null,
-      fileUrl: n.format === 'file' && n.file_path ? publicFileUrl(n.file_path) : null,
+      fileUrl: n.format === 'file' && n.file_path ? publicFileUrl(baseUrl, n.file_path) : null,
     })
     notationsByItem.set(n.item_id, list)
   }
@@ -99,4 +99,4 @@ export const getCatalogFn = createServerFn({ method: 'GET' }).handler(async (): 
 
 export const getTrackFn = createServerFn({ method: 'GET' })
   .validator((d: unknown) => ({ slug: String((d as { slug?: unknown })?.slug ?? '') }))
-  .handler(async ({ data }) => loadTrack(getSupabase(), data.slug))
+  .handler(async ({ data }) => loadTrack(getSupabase(), data.slug, supabaseConfig().url))

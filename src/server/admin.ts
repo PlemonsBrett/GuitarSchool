@@ -53,7 +53,7 @@ export const getAdminTrackFn = createServerFn({ method: 'GET' })
   .validator((d: unknown) => ({ slug: slug(obj(d).slug) }))
   .handler(async ({ data, context }): Promise<{ track: Track; chords: Chord[] }> => {
     const supabase = context.supabase
-    const track = await loadTrack(supabase, data.slug)
+    const track = await loadTrack(supabase, data.slug, context.supabaseUrl)
     if (!track) throw new Error('Track not found')
     const chords = check(await supabase.from('chords').select('*').order('id'))
     return { track, chords: (chords ?? []).map(rowToChord) }
