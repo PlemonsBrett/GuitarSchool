@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Item, Notation as NotationT } from '~/content/types'
 import { deleteNotationFn, reorderFn, saveNotationFn, uploadTabFn } from '~/server/admin'
 import { Notation } from '../Notation'
+import { TabViewer } from '../TabViewer'
 import { Btn, confirmDelete, ErrorText, Field, inputCls, moved, MoveButtons, useAction } from './ui'
 
 const TEMPLATE = `\\tempo 80
@@ -65,7 +66,7 @@ export function NotationEditor({ item }: { item: Item }) {
                 </div>
                 {previewing.has(n.id) && (
                   <div className="mt-3 border-t border-line pt-3">
-                    <Notation tex={n.tex} fileUrl={n.fileUrl} />
+                    <TabViewer tex={n.tex} fileUrl={n.fileUrl} />
                   </div>
                 )}
               </>

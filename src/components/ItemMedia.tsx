@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { ItemMedia as Media } from '~/content/types'
 import { ChordDiagram } from './ChordDiagram'
-import { Notation } from './Notation'
+import { TabViewer } from './TabViewer'
 
 export function ItemMedia({ media }: { media?: Media }) {
   // Notation mounts only once opened, so alphaTab is loaded on demand.
@@ -39,7 +39,7 @@ export function ItemMedia({ media }: { media?: Media }) {
           </button>
           {open.has(i) && (
             <div className="border-t border-line p-3">
-              <Notation tex={n.tex} fileUrl={n.fileUrl} />
+              <TabViewer tex={n.tex} fileUrl={n.fileUrl} />
               {n.caption && <p className="mt-2 text-sm text-muted">{n.caption}</p>}
             </div>
           )}

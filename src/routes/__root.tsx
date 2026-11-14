@@ -47,6 +47,11 @@ function Shell({ children }: { children: ReactNode }) {
         <Link to="/" className="text-lg font-bold tracking-tight">
           Guitar<span className="text-accent">School</span>
         </Link>
+        <nav aria-label="Main" className="ml-6 mr-auto text-sm">
+          <Link to="/tools" className="text-muted hover:text-text" activeProps={{ className: 'font-medium text-text' }}>
+            Practice tools
+          </Link>
+        </nav>
         {user ? (
           <div className="flex items-center gap-3 text-sm">
             {user.isAdmin && (

@@ -222,6 +222,29 @@ export const saveItemFn = createServerFn({ method: 'POST' })
     )
   })
 
+export const moveItemFn = createServerFn({ method: 'POST' })
+  .middleware([adminMiddleware])
+  .validator((d: unknown) => ({ id: uuid(obj(d).id), phaseId: uuid(obj(d).phaseId, 'Phase') }))
+  .handler(async ({ data, context }) => {
+    const supabase = context.supabase
+    const [item, phase] = await Promise.all([
+      supabase.from('items').select('track_slug, phase_id').eq('id', data.id).maybeSingle(),
+      supabase.from('phases').select('track_slug').eq('id', data.phaseId).maybeSingle(),
+    ])
+    const it = check(item)
+    const ph = check(phase)
+    if (!it || !ph) throw new Error('That lesson or phase no longer exists. Reload and try again.')
+    if (it.track_slug !== ph.track_slug) throw new Error('Lessons can only move within their own track.')
+    if (it.phase_id === data.phaseId) return
+    // Learners' progress is keyed by the lesson's slug, so moving it keeps everyone's checkmarks.
+    check(
+      await supabase
+        .from('items')
+        .update({ phase_id: data.phaseId, position: await nextPosition(supabase, 'items', 'phase_id', data.phaseId) })
+        .eq('id', data.id),
+    )
+  })
+
 export const deleteItemFn = createServerFn({ method: 'POST' })
   .middleware([adminMiddleware])
   .validator((d: unknown) => ({ id: uuid(obj(d).id) }))

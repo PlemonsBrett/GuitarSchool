@@ -44,6 +44,7 @@ function TrackEditor() {
             index={i}
             total={track.phases.length}
             allPhaseIds={phaseIds}
+            phaseOptions={track.phases.map((x) => ({ id: x.id, title: x.title }))}
             chords={chords}
           />
         ))}

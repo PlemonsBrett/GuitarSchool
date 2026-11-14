@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Chord, Item, Phase } from '~/content/types'
 import { slugify } from '~/lib/slug'
-import { deleteItemFn, deletePhaseFn, reorderFn, saveItemFn, savePhaseFn } from '~/server/admin'
+import { deleteItemFn, deletePhaseFn, moveItemFn, reorderFn, saveItemFn, savePhaseFn } from '~/server/admin'
 import { ChordDiagram } from '../ChordDiagram'
 import { NotationEditor } from './NotationEditor'
 import { Btn, confirmDelete, ErrorText, Field, inputCls, moved, MoveButtons, useAction } from './ui'
@@ -93,6 +93,7 @@ export function PhaseCard({
   index,
   total,
   allPhaseIds,
+  phaseOptions,
   chords,
 }: {
   trackSlug: string
@@ -100,6 +101,7 @@ export function PhaseCard({
   index: number
   total: number
   allPhaseIds: string[]
+  phaseOptions: { id: string; title: string }[]
   chords: Chord[]
 }) {
   const act = useAction()
@@ -161,7 +163,7 @@ export function PhaseCard({
               </div>
               {openItem === item.id && (
                 <div className="border-t border-line p-3">
-                  <ItemForm phaseId={phase.id} item={item} chords={chords} onDone={() => setOpenItem(null)} />
+                  <ItemForm phaseId={phase.id} item={item} chords={chords} phaseOptions={phaseOptions} onDone={() => setOpenItem(null)} />
                 </div>
               )}
             </li>
@@ -183,9 +185,22 @@ export function PhaseCard({
 // Item
 // ---------------------------------------------------------------------------------------------
 
-function ItemForm({ phaseId, item, chords, onDone }: { phaseId: string; item?: Item; chords: Chord[]; onDone: () => void }) {
+function ItemForm({
+  phaseId,
+  item,
+  chords,
+  phaseOptions = [],
+  onDone,
+}: {
+  phaseId: string
+  item?: Item
+  chords: Chord[]
+  phaseOptions?: { id: string; title: string }[]
+  onDone: () => void
+}) {
   const { busy, error, run } = useAction()
   const del = useAction()
+  const move = useAction()
   const [kind, setKind] = useState<'drill' | 'song'>(item?.kind ?? 'drill')
   const [title, setTitle] = useState(item?.title ?? '')
   const [slug, setSlug] = useState(item?.slug ?? '')
@@ -229,6 +244,23 @@ function ItemForm({ phaseId, item, chords, onDone }: { phaseId: string; item?: I
             />
           </Field>
         </div>
+        {item && phaseOptions.length > 1 && (
+          <Field label="Phase" hint="Move this lesson to another phase. Learners keep their progress.">
+            <select
+              value={phaseId}
+              disabled={move.busy}
+              onChange={(e) => void move.run(() => moveItemFn({ data: { id: item.id, phaseId: e.target.value } }))}
+              className={inputCls}
+            >
+              {phaseOptions.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title}
+                </option>
+              ))}
+            </select>
+            <ErrorText>{move.error}</ErrorText>
+          </Field>
+        )}
         {!item && (
           <Field label="Slug" hint="Set once; learners' progress is keyed to it. Must be unique within the track.">
             <input

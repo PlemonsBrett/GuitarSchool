@@ -1,15 +1,35 @@
+import type { AlphaTabApi } from '@coderline/alphatab'
 import { useEffect, useRef, useState } from 'react'
 
-/** Standard notation + tab, rendered by alphaTab. Browser only: mount it after hydration. */
-/** Pass alphaTex source, or the URL of a Guitar Pro file. */
-export function Notation({ tex, fileUrl }: { tex?: string | null; fileUrl?: string | null }) {
+export const SOUNDFONT_URL = '/soundfont/sonivox.sf2'
+
+/**
+ * Standard notation + tab, rendered by alphaTab. Browser only: mount it after hydration.
+ * Give it alphaTex source, a Guitar Pro file URL, or raw file bytes.
+ * `player` also loads the soundfont and enables playback; `onApi` hands the instance to a toolbar.
+ */
+export function Notation({
+  tex,
+  fileUrl,
+  data,
+  player = false,
+  onApi,
+}: {
+  tex?: string | null
+  fileUrl?: string | null
+  data?: Uint8Array | null
+  player?: boolean
+  onApi?: (api: AlphaTabApi | null) => void
+}) {
   const host = useRef<HTMLDivElement>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [message, setMessage] = useState('')
+  const onApiRef = useRef(onApi)
+  onApiRef.current = onApi
 
   useEffect(() => {
     let cancelled = false
-    let api: { destroy(): void } | undefined
+    let api: AlphaTabApi | undefined
     setStatus('loading')
 
     ;(async () => {
@@ -23,7 +43,14 @@ export function Notation({ tex, fileUrl }: { tex?: string | null; fileUrl?: stri
 
         const a = new at.AlphaTabApi(host.current, {
           core: { fontDirectory: '/font/', useWorkers: false },
-          player: { enablePlayer: false },
+          player: {
+            enablePlayer: player,
+            soundFont: SOUNDFONT_URL,
+            // Our scores are short; auto-scrolling would just yank the page around.
+            scrollMode: at.ScrollMode.Off,
+            enableCursor: player,
+            enableUserInteraction: player,
+          },
           display: {
             staveProfile: at.StaveProfile.ScoreTab,
             scale: 0.9,
@@ -44,7 +71,10 @@ export function Notation({ tex, fileUrl }: { tex?: string | null; fileUrl?: stri
           setStatus('error')
         })
         a.renderFinished.on(() => !cancelled && setStatus((s) => (s === 'error' ? s : 'ready')))
-        if (fileUrl) a.load(fileUrl)
+        onApiRef.current?.(a)
+
+        if (data) a.load(data)
+        else if (fileUrl) a.load(fileUrl)
         else if (tex) a.tex(tex)
         else {
           setMessage('Nothing to show yet.')
@@ -59,19 +89,22 @@ export function Notation({ tex, fileUrl }: { tex?: string | null; fileUrl?: stri
 
     return () => {
       cancelled = true
+      onApiRef.current?.(null)
       api?.destroy()
     }
-  }, [tex, fileUrl])
+  }, [tex, fileUrl, data, player])
 
   return (
     <div>
       {status === 'loading' && <p className="text-sm text-muted">Loading notation…</p>}
       {status === 'error' && (
         <p role="alert" className="text-sm text-red-500">
-          Could not render this notation. {message}
+          {data
+            ? 'Could not open that file. Is it a Guitar Pro file (.gp, .gp5, .gp7, .gpx)?'
+            : `Could not render this notation. ${message}`}
         </p>
       )}
-      <div ref={host} className="overflow-x-auto" aria-label="Guitar notation and tab" />
+      <div ref={host} className="relative overflow-x-auto" aria-label="Guitar notation and tab" />
     </div>
   )
 }

@@ -16,6 +16,14 @@ Fewer video lessons, more "go here next". Built with TanStack Start, deployed to
 - **Guitar Pro style tab + standard notation:** attach either a Guitar Pro file (`.gp`, `.gp5`, `.gp7`, `.gpx`…) or hand-written [alphaTex](https://alphatab.net/docs/alphatex) with a live preview. Rendered by alphaTab, loaded on demand when someone opens a lesson.
 - **Songs:** the seed does not include transcriptions of copyrighted songs; songs link out to licensed tabs. What you upload is up to you. Uploaded files are stored in a **public** bucket, so anyone with the link can download them. Only upload tabs you have the right to share.
 
+## Practice tools
+
+Public at `/tools`, also embedded where you practice. Everything runs in the browser: nothing is recorded or uploaded.
+
+- **Metronome:** accent, 2-8 beats, quarter/eighth/triplet/sixteenth clicks, tap tempo, volume. Includes a tracker for the rule "raise the tempo only after 3 clean passes": three clean passes in a row raise the tempo by 2/5/10 bpm; a miss resets the count; optional goal tempo. Clicks are scheduled on the audio clock (look-ahead scheduler), so timing does not drift. Embedded on Today's practice.
+- **Tuner:** microphone pitch detection (YIN), standard / drop D / half-step-down / DADGAD, a cents needle, and tap-a-string reference tones. The browser's voice processing is turned off so the guitar tone is measured as-is.
+- **Tab player:** every tab can "Play along": speed from 25% to 125% (with the effective bpm), loop a selected range, click track, count-in. `/tools/player` also opens any Guitar Pro file from your own computer without uploading it. Playback uses alphaTab's bundled SONiVOX soundfont (Apache-2.0, 1.3 MB), downloaded only when someone presses Play along.
+
 ## Admin
 
 1. Sign up in the app, then make yourself an admin once, in the Supabase SQL editor:

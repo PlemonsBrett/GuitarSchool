@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound, redirect, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ItemMedia } from '~/components/ItemMedia'
+import { Metronome } from '~/components/tools/Metronome'
 import { lookups } from '~/content/links'
 import { todaysPlan } from '~/lib/plan'
 import { currentStreak } from '~/lib/streak'
@@ -59,6 +60,17 @@ function Today() {
       <p className="text-muted">
         {phase.title} · {phase.months} · 🔥 {streak}-day streak
       </p>
+
+      <details className="mt-5 rounded-xl border border-line bg-surface">
+        <summary className="cursor-pointer px-4 py-3 text-sm font-medium">Metronome &amp; tools</summary>
+        <div className="space-y-3 border-t border-line p-3">
+          <Metronome compact storageKey="gs:metronome:today" />
+          <p className="text-sm text-muted">
+            Also: <Link to="/tools/tuner" className="underline">Tuner</Link> ·{' '}
+            <Link to="/tools/player" className="underline">Tab player</Link>
+          </p>
+        </div>
+      </details>
 
       <ol className="mt-6 space-y-3">
         {blocks.map((b) => (
