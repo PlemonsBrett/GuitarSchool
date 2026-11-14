@@ -1,4 +1,4 @@
-import type { Chord } from '~/content/chords'
+import type { Chord } from '~/content/types'
 
 const STRINGS = 6
 const FRETS = 5

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
 /** Standard notation + tab, rendered by alphaTab. Browser only: mount it after hydration. */
-export function Notation({ tex }: { tex: string }) {
+/** Pass alphaTex source, or the URL of a Guitar Pro file. */
+export function Notation({ tex, fileUrl }: { tex?: string | null; fileUrl?: string | null }) {
   const host = useRef<HTMLDivElement>(null)
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
   const [message, setMessage] = useState('')
@@ -43,7 +44,12 @@ export function Notation({ tex }: { tex: string }) {
           setStatus('error')
         })
         a.renderFinished.on(() => !cancelled && setStatus((s) => (s === 'error' ? s : 'ready')))
-        a.tex(tex)
+        if (fileUrl) a.load(fileUrl)
+        else if (tex) a.tex(tex)
+        else {
+          setMessage('Nothing to show yet.')
+          setStatus('error')
+        }
       } catch (e) {
         if (cancelled) return
         setMessage(e instanceof Error ? e.message : 'Could not load notation')
@@ -55,7 +61,7 @@ export function Notation({ tex }: { tex: string }) {
       cancelled = true
       api?.destroy()
     }
-  }, [tex])
+  }, [tex, fileUrl])
 
   return (
     <div>

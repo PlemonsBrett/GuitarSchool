@@ -11,9 +11,13 @@ function parseCredentials(d: unknown): Credentials {
 }
 
 export const getUserFn = createServerFn({ method: 'GET' }).handler(async () => {
-  const { data } = await getSupabase().auth.getClaims()
+  const supabase = getSupabase()
+  const { data } = await supabase.auth.getClaims()
   const claims = data?.claims
-  return claims ? { id: claims.sub, email: (claims.email as string | undefined) ?? '' } : null
+  if (!claims) return null
+  // Only used to show/hide UI. Every admin write is enforced again by RLS in the database.
+  const { data: isAdmin } = await supabase.rpc('is_admin')
+  return { id: claims.sub, email: (claims.email as string | undefined) ?? '', isAdmin: isAdmin === true }
 })
 
 export const signInFn = createServerFn({ method: 'POST' })

@@ -1,21 +1,42 @@
-import type { ItemMedia } from './notation'
-
 export type PathId = 'acoustic' | 'electric'
+export type TrackStatus = 'draft' | 'coming_soon' | 'published'
+
+/** Fingering: 6 entries, low E to high E. -1 = muted, 0 = open, n = fret. */
+export type Chord = {
+  id: string
+  name: string
+  frets: number[]
+  /** Finger per string (1 = index ... 4 = pinky), 0 = none. */
+  fingers: number[]
+  /** Barre across strings (6 = low E ... 1 = high E) at a fret. */
+  barre?: { fret: number; from: number; to: number } | null
+}
+
+/** One piece of notation: alphaTex source, or an uploaded Guitar Pro file. */
+export type Notation = {
+  id: string
+  title: string
+  caption?: string | null
+  tex?: string | null
+  fileUrl?: string | null
+}
+
+export type ItemMedia = { chords?: Chord[]; chordNote?: string | null; notation?: Notation[] }
 
 export type Item = {
-  /** Stable slug, unique within a track. Stored in user_progress.item_slug. */
+  id: string
+  /** Stable slug, unique within a track. Stored in user_progress.item_slug, so it never changes. */
   slug: string
   kind: 'drill' | 'song'
   title: string
-  /** What to actually do, in one or two sentences. */
   detail: string
-  /** Optional search hint appended to lookups, e.g. the artist. */
-  query?: string
-  /** Chord diagrams and notation shown with the item. */
+  /** Search hint appended to lookups, e.g. the artist. */
+  query?: string | null
   media?: ItemMedia
 }
 
 export type Phase = {
+  id: string
   slug: string
   title: string
   months: string
@@ -29,23 +50,14 @@ export type Track = {
   path: PathId
   style: string
   title: string
+  blurb: string
   tagline: string
-  published: boolean
-  phases: Phase[]
+  status: TrackStatus
+  /** Item shown as the daily warm-up; falls back to the first drill. */
+  warmupSlug?: string | null
   habits: string[]
-  /** What "intermediate" means for this track. */
   graduation: string[]
+  phases: Phase[]
 }
 
-export type StyleOption = {
-  trackSlug: string
-  label: string
-  blurb: string
-}
-
-export type PathInfo = {
-  id: PathId
-  title: string
-  blurb: string
-  styles: StyleOption[]
-}
+export type CatalogEntry = Pick<Track, 'slug' | 'path' | 'style' | 'title' | 'blurb' | 'status'>

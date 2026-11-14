@@ -1,27 +1,30 @@
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { createServerFn } from '@tanstack/react-start'
-import { allItems, getTrack, isPublished } from '~/content'
-import { getSupabase } from '~/lib/supabase.server'
+import { SLUG_RE } from '~/lib/slug'
+import { userMiddleware } from './middleware'
 
-async function requireUser() {
-  const supabase = getSupabase()
-  const { data } = await supabase.auth.getClaims()
-  if (!data?.claims) throw new Error('Not signed in')
-  return supabase
+type Db = SupabaseClient
+
+function slugArg(v: unknown, what: string): string {
+  if (typeof v !== 'string' || !SLUG_RE.test(v)) throw new Error(`Unknown ${what}`)
+  return v
 }
 
-function validTrack(slug: unknown): string {
-  if (typeof slug !== 'string' || !isPublished(slug)) throw new Error('Unknown track')
-  return slug
+/** Progress can only be recorded on published tracks. */
+async function assertPublished(supabase: Db, trackSlug: string) {
+  const { data, error } = await supabase.from('tracks').select('status').eq('slug', trackSlug).maybeSingle()
+  if (error) throw new Error(error.message)
+  if (data?.status !== 'published') throw new Error('Unknown track')
 }
 
-function validItem(trackSlug: string, itemSlug: unknown): string {
-  const track = getTrack(trackSlug)!
-  const known = new Set<string>([
-    ...allItems(track).map((x) => x.item.slug),
-    ...track.phases.map((p) => p.milestone.slug),
+/** An item slug or a phase milestone slug that really exists on this track. */
+async function assertItem(supabase: Db, trackSlug: string, itemSlug: string) {
+  const [item, milestone] = await Promise.all([
+    supabase.from('items').select('id').eq('track_slug', trackSlug).eq('slug', itemSlug).maybeSingle(),
+    supabase.from('phases').select('id').eq('track_slug', trackSlug).eq('milestone_slug', itemSlug).maybeSingle(),
   ])
-  if (typeof itemSlug !== 'string' || !known.has(itemSlug)) throw new Error('Unknown item')
-  return itemSlug
+  if (item.error || milestone.error) throw new Error((item.error ?? milestone.error)!.message)
+  if (!item.data && !milestone.data) throw new Error('Unknown item')
 }
 
 export type TrackProgress = {
@@ -34,9 +37,11 @@ export type TrackProgress = {
 }
 
 export const getProgressFn = createServerFn({ method: 'GET' })
-  .validator((d: unknown) => ({ trackSlug: validTrack((d as { trackSlug?: unknown })?.trackSlug) }))
-  .handler(async ({ data }): Promise<TrackProgress> => {
-    const supabase = await requireUser()
+  .middleware([userMiddleware])
+  .validator((d: unknown) => ({ trackSlug: slugArg((d as { trackSlug?: unknown })?.trackSlug, 'track') }))
+  .handler(async ({ data, context }): Promise<TrackProgress> => {
+    const supabase = context.supabase
+    await assertPublished(supabase, data.trackSlug)
     const [started, done, logs] = await Promise.all([
       supabase.from('user_tracks').select('started_on').eq('track_slug', data.trackSlug).maybeSingle(),
       supabase.from('progress').select('item_slug').eq('track_slug', data.trackSlug),
@@ -61,9 +66,11 @@ export const getProgressFn = createServerFn({ method: 'GET' })
   })
 
 export const startTrackFn = createServerFn({ method: 'POST' })
-  .validator((d: unknown) => ({ trackSlug: validTrack((d as { trackSlug?: unknown })?.trackSlug) }))
-  .handler(async ({ data }) => {
-    const supabase = await requireUser()
+  .middleware([userMiddleware])
+  .validator((d: unknown) => ({ trackSlug: slugArg((d as { trackSlug?: unknown })?.trackSlug, 'track') }))
+  .handler(async ({ data, context }) => {
+    const supabase = context.supabase
+    await assertPublished(supabase, data.trackSlug)
     const { error } = await supabase
       .from('user_tracks')
       .upsert({ track_slug: data.trackSlug }, { onConflict: 'user_id,track_slug', ignoreDuplicates: true })
@@ -71,13 +78,15 @@ export const startTrackFn = createServerFn({ method: 'POST' })
   })
 
 export const setCompletedFn = createServerFn({ method: 'POST' })
+  .middleware([userMiddleware])
   .validator((d: unknown) => {
     const x = (d ?? {}) as { trackSlug?: unknown; itemSlug?: unknown; done?: unknown }
-    const trackSlug = validTrack(x.trackSlug)
-    return { trackSlug, itemSlug: validItem(trackSlug, x.itemSlug), done: x.done === true }
+    return { trackSlug: slugArg(x.trackSlug, 'track'), itemSlug: slugArg(x.itemSlug, 'item'), done: x.done === true }
   })
-  .handler(async ({ data }) => {
-    const supabase = await requireUser()
+  .handler(async ({ data, context }) => {
+    const supabase = context.supabase
+    await assertPublished(supabase, data.trackSlug)
+    await assertItem(supabase, data.trackSlug, data.itemSlug)
     const q = data.done
       ? supabase
           .from('progress')
@@ -88,15 +97,17 @@ export const setCompletedFn = createServerFn({ method: 'POST' })
   })
 
 export const logPracticeFn = createServerFn({ method: 'POST' })
+  .middleware([userMiddleware])
   .validator((d: unknown) => {
     const x = (d ?? {}) as { trackSlug?: unknown; minutes?: unknown; note?: unknown }
     const minutes = Number(x.minutes)
     if (!Number.isInteger(minutes) || minutes < 1 || minutes > 600) throw new Error('Minutes must be 1-600')
     const note = typeof x.note === 'string' ? x.note.trim().slice(0, 1000) : ''
-    return { trackSlug: validTrack(x.trackSlug), minutes, note: note || null }
+    return { trackSlug: slugArg(x.trackSlug, 'track'), minutes, note: note || null }
   })
-  .handler(async ({ data }) => {
-    const supabase = await requireUser()
+  .handler(async ({ data, context }) => {
+    const supabase = context.supabase
+    await assertPublished(supabase, data.trackSlug)
     const { error } = await supabase
       .from('practice_logs')
       .insert({ track_slug: data.trackSlug, minutes: data.minutes, note: data.note })

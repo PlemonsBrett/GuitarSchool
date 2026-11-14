@@ -2,9 +2,9 @@ import { createFileRoute, Link, notFound, redirect, useRouter } from '@tanstack/
 import { useState } from 'react'
 import { ItemMedia } from '~/components/ItemMedia'
 import { lookups } from '~/content/links'
-import { getTrack } from '~/content'
 import { todaysPlan } from '~/lib/plan'
 import { currentStreak } from '~/lib/streak'
+import { getTrackFn } from '~/server/catalog'
 import { getProgressFn, logPracticeFn, startTrackFn } from '~/server/progress'
 
 export const Route = createFileRoute('/tracks/$slug/today')({
@@ -12,8 +12,8 @@ export const Route = createFileRoute('/tracks/$slug/today')({
     if (!context.user) throw redirect({ to: '/login', search: { redirect: location.pathname } })
   },
   loader: async ({ params }) => {
-    const track = getTrack(params.slug)
-    if (!track?.published) throw notFound()
+    const track = await getTrackFn({ data: { slug: params.slug } })
+    if (!track || track.status !== 'published') throw notFound()
     return { track, progress: await getProgressFn({ data: { trackSlug: track.slug } }) }
   },
   head: () => ({ meta: [{ title: "Today's practice · Guitar School" }] }),
@@ -28,7 +28,7 @@ function Today() {
   const [state, setState] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [error, setError] = useState<string | null>(null)
 
-  const { phase, blocks } = todaysPlan(track, new Set(progress.completed))
+  const plan = todaysPlan(track, new Set(progress.completed))
   const streak = currentStreak(progress.practiceDays, progress.today)
 
   async function log(e: React.FormEvent) {
@@ -46,6 +46,9 @@ function Today() {
       setState('idle')
     }
   }
+
+  if (!plan) return <p className="py-10 text-muted">This track has no lessons yet.</p>
+  const { phase, blocks } = plan
 
   return (
     <>

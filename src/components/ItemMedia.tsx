@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { chords } from '~/content/chords'
-import type { ItemMedia as Media } from '~/content/notation'
+import type { ItemMedia as Media } from '~/content/types'
 import { ChordDiagram } from './ChordDiagram'
 import { Notation } from './Notation'
 
@@ -20,15 +19,15 @@ export function ItemMedia({ media }: { media?: Media }) {
       {media.chords && (
         <div>
           <div className="flex flex-wrap gap-3">
-            {media.chords.map((id) => (
-              <ChordDiagram key={id} chord={chords[id]} />
+            {media.chords.map((c) => (
+              <ChordDiagram key={c.id} chord={c} />
             ))}
           </div>
           {media.chordNote && <p className="mt-1 text-xs text-muted">{media.chordNote}</p>}
         </div>
       )}
       {media.notation?.map((n, i) => (
-        <div key={n.title} className="rounded-lg border border-line bg-bg">
+        <div key={n.id} className="rounded-lg border border-line bg-bg">
           <button
             type="button"
             aria-expanded={open.has(i)}
@@ -40,7 +39,7 @@ export function ItemMedia({ media }: { media?: Media }) {
           </button>
           {open.has(i) && (
             <div className="border-t border-line p-3">
-              <Notation tex={n.tex} />
+              <Notation tex={n.tex} fileUrl={n.fileUrl} />
               {n.caption && <p className="mt-2 text-sm text-muted">{n.caption}</p>}
             </div>
           )}

@@ -3,7 +3,7 @@ import type { Item, Phase, Track } from '~/content/types'
 export type DailyBlock = { minutes: number; label: string; item?: Item; note?: string }
 
 /** First phase with anything left to do; the last phase once everything is done. */
-export function currentPhase(track: Track, completed: Set<string>): Phase {
+export function currentPhase(track: Track, completed: Set<string>): Phase | undefined {
   const open = track.phases.find(
     (p) => !completed.has(p.milestone.slug) || p.items.some((i) => !completed.has(i.slug)),
   )
@@ -13,8 +13,10 @@ export function currentPhase(track: Track, completed: Set<string>): Phase {
 /** The 5 / 10 / 10 / 5 daily structure, pointing at the next unfinished drill and song. */
 export function todaysPlan(track: Track, completed: Set<string>) {
   const phase = currentPhase(track, completed)
+  if (!phase) return null // a brand-new track with no phases yet
   const nextOf = (kind: Item['kind']) => phase.items.find((i) => i.kind === kind && !completed.has(i.slug))
-  const warmup = track.phases[0].items.find((i) => i.slug === 'spider')
+  const allItems = track.phases.flatMap((p) => p.items)
+  const warmup = allItems.find((i) => i.slug === track.warmupSlug) ?? allItems.find((i) => i.kind === 'drill')
   const blocks: DailyBlock[] = [
     { minutes: 5, label: 'Warm-up', item: warmup },
     {

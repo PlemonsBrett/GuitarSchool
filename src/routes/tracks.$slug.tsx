@@ -1,15 +1,16 @@
 import { createFileRoute, Link, notFound, useRouter } from '@tanstack/react-router'
 import { useState } from 'react'
 import { ItemRow } from '~/components/ItemRow'
-import { getTrack } from '~/content'
 import { currentStreak } from '~/lib/streak'
+import { getTrackFn } from '~/server/catalog'
 import { getProgressFn, setCompletedFn, startTrackFn } from '~/server/progress'
 
 export const Route = createFileRoute('/tracks/$slug')({
   loader: async ({ params, context }) => {
-    const track = getTrack(params.slug)
-    if (!track?.published) throw notFound()
-    const progress = context.user ? await getProgressFn({ data: { trackSlug: track.slug } }) : null
+    const track = await getTrackFn({ data: { slug: params.slug } })
+    // Drafts and coming-soon tracks are only viewable by admins (previewing).
+    if (!track || (track.status !== 'published' && !context.user?.isAdmin)) throw notFound()
+    const progress = context.user && track.status === 'published' ? await getProgressFn({ data: { trackSlug: track.slug } }) : null
     return { track, progress }
   },
   head: ({ loaderData }) => ({ meta: [{ title: `${loaderData?.track.title ?? 'Track'} · Guitar School` }] }),
@@ -52,6 +53,11 @@ function TrackPage() {
   return (
     <>
       <Link to="/" className="text-sm text-muted hover:text-text">← All paths</Link>
+      {track.status !== 'published' && (
+        <p className="mt-3 rounded-md border border-accent/60 bg-accent/10 px-3 py-2 text-sm">
+          Preview: this track is <strong>{track.status.replace('_', ' ')}</strong> and not visible to learners.
+        </p>
+      )}
       <h1 className="mt-2 text-3xl font-bold tracking-tight">{track.title}</h1>
       <p className="text-muted">{track.tagline}</p>
 
@@ -89,6 +95,7 @@ function TrackPage() {
       </div>
       {error && <p role="alert" className="mt-3 text-sm text-red-500">{error}</p>}
 
+      {track.phases.length === 0 && <p className="mt-8 text-muted">No lessons yet.</p>}
       <div className="mt-8 space-y-10">
         {track.phases.map((phase, i) => (
           <section key={phase.slug} aria-labelledby={phase.slug}>

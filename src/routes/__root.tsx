@@ -49,6 +49,11 @@ function Shell({ children }: { children: ReactNode }) {
         </Link>
         {user ? (
           <div className="flex items-center gap-3 text-sm">
+            {user.isAdmin && (
+              <Link to="/admin" className="rounded-md border border-line px-3 py-1.5 hover:bg-surface">
+                Admin
+              </Link>
+            )}
             <span className="hidden text-muted sm:inline">{user.email}</span>
             <button
               className="rounded-md border border-line px-3 py-1.5 hover:bg-surface"

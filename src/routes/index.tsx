@@ -1,9 +1,14 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { isPublished, paths } from '~/content'
+import { PATHS } from '~/content/paths'
+import { getCatalogFn } from '~/server/catalog'
 
-export const Route = createFileRoute('/')({ component: Home })
+export const Route = createFileRoute('/')({
+  loader: () => getCatalogFn(),
+  component: Home,
+})
 
 function Home() {
+  const catalog = Route.useLoaderData()
   return (
     <>
       <section className="py-10 sm:py-16">
@@ -17,17 +22,17 @@ function Home() {
       </section>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        {paths.map((p) => (
+        {PATHS.map((p) => (
           <section key={p.id} className="rounded-xl border border-line bg-surface p-5">
             <h2 className="text-2xl font-semibold">{p.title}</h2>
             <p className="text-sm text-muted">{p.blurb}</p>
             <ul className="mt-4 space-y-2">
-              {p.styles.map((s) => {
-                const live = isPublished(s.trackSlug)
+              {catalog.filter((s) => s.path === p.id).map((s) => {
+                const live = s.status === 'published'
                 const body = (
                   <>
                     <span>
-                      <span className="block font-medium">{s.label}</span>
+                      <span className="block font-medium">{s.style}</span>
                       <span className="block text-sm text-muted">{s.blurb}</span>
                     </span>
                     {live ? (
@@ -38,11 +43,11 @@ function Home() {
                   </>
                 )
                 return (
-                  <li key={s.trackSlug}>
+                  <li key={s.slug}>
                     {live ? (
                       <Link
                         to="/tracks/$slug"
-                        params={{ slug: s.trackSlug }}
+                        params={{ slug: s.slug }}
                         className="flex items-center justify-between rounded-lg border border-line p-3 hover:border-accent"
                       >
                         {body}
