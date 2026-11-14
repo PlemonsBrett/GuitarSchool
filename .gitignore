@@ -147,3 +147,10 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# App
+.dev.vars
+.wrangler/
+dist/
+worker-configuration.d.ts
+src/routeTree.gen.ts
